@@ -1,0 +1,1310 @@
+// 
+// Lariano v0.7.3
+// 
+// The MIT License (MIT)
+// 
+// Copyright (c) 2015 - Flavio Iacoppini @ Fabaris.it
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// Creator: Flavio "Faycop" Iacoppini @ Fabaris.it
+// Date: 13.07.2015
+// 
+// Changelog:
+// - v0.4
+//    - Added mixin: "three-quarters" and "two-third"
+// - v0.5
+//    - Added variable direction to mixins lariano-offset/inset. ex: @include lariano-inset(desktop,3,right);
+// - v0.6
+//    - Added mixin: "lariano-col-reset"
+// - v0.7
+//    - All typologies have different settable gutter now
+//    - New mixin: lariano-move includes "offset" - "inset" - "push" - "pull". ex: @include lariano-move(inset, desktop, 3, left); or @include lariano-move(offset, third);
+// - v0.7.1
+//    - Added variable direction to mixin lariano-col ex: @include lariano-col(desktop,3,no-gutter,right);
+// - v0.7.2
+//    - Created a fallback on which using such as @include lariano-col(half,no-gutter); will work just as using @include lariano-col(half,1,no-gutter);
+//    - Removed the no-gutter on mixin lariano-col 'full' - 'half' - etc. - it felt useless
+// - v0.7.3
+//    - Added "all" typology to mixin lariano-move
+//
+
+$large: (
+	name: 'large',
+	media: 1200px,
+	container: 1200px,
+	columns: 12,
+	gutter: 20px
+);
+$desktop: (
+	name: 'desktop',
+	media: 980px,
+	container: 980px,
+	columns: 10,
+	gutter: 20px
+);
+$tablet: (
+	name: 'tablet',
+	media: 768px,
+	container: 768px,
+	columns: 8,
+	gutter: 20px
+);
+$mobile: (
+	name: 'mobile',
+	alt: 'mb-first',
+	media: 745px,
+	container: 585px,
+	columns: 4,
+	gutter: 20px
+);
+
+// Columns dimensions (1 space)
+$largeWidth: 100% / map-get($large, columns);
+$desktopWidth: 100% / map-get($desktop, columns);
+$tabletWidth: 100% / map-get($tablet, columns);
+$mobileWidth: 100% / map-get($mobile, columns);
+
+html {
+	box-sizing: border-box;
+}
+*, *:before, *:after {
+	box-sizing: inherit;
+}
+
+@mixin clearfix {
+	zoom: 1;
+	&:after {
+		display: block;
+		visibility: hidden;
+		height: 0;
+		clear: both;
+		content: ".";
+	}
+}
+@mixin center-block {
+	margin: 0 auto;
+}
+
+@mixin gutter($typology) {
+	@if $typology == map-get($large, name) {
+		padding-right: map-get($large, gutter) / 2;
+		padding-left: map-get($large, gutter) / 2;
+	}
+
+	@if $typology == map-get($desktop, name) {
+		padding-right: map-get($desktop, gutter) / 2;
+		padding-left: map-get($desktop, gutter) / 2;
+	}
+
+	@if $typology == map-get($tablet, name) {
+		padding-right: map-get($tablet, gutter) / 2;
+		padding-left: map-get($tablet, gutter) / 2;
+	}
+
+	@if $typology == map-get($mobile, name) or $typology == map-get($mobile, name) {
+		padding-right: map-get($mobile, gutter) / 2;
+		padding-left: map-get($mobile, gutter) / 2;
+	}
+}
+@mixin no-gutter {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+
+// Media Query
+@mixin lariano-media-query($typology){
+	@if $typology == map-get($large, name) {
+		@media (min-width: map-get($large, media)) {
+			@content;
+		}
+	}
+	@if $typology == map-get($tablet, name) {
+		@media (max-width: map-get($desktop, media)) {
+			@content;
+		}
+	}
+	@if $typology == map-get($mobile, name) {
+		@media (max-width: map-get($mobile, media)) {
+			@content;
+		}
+	}
+}
+
+// Container
+@mixin lariano-container($typology:all){
+	@include clearfix;
+	@include center-block;
+
+	width: 100%;
+
+	@if $typology == map-get($desktop, name) {
+		max-width: map-get($desktop, container) + map-get($desktop, gutter);
+	}
+
+	@if $typology == map-get($large, name) {
+		min-width: map-get($desktop, container) + map-get($desktop, gutter);
+		@media (min-width: map-get($large, media)) {
+			max-width: map-get($large, container) + map-get($large, gutter);
+		}
+	}
+
+	@if $typology == map-get($tablet, name) {
+		min-width: map-get($mobile, container) + map-get($mobile, gutter);
+		max-width: map-get($desktop, container) + map-get($desktop, gutter);
+	}
+
+	@if $typology == map-get($mobile, name) {
+		max-width: map-get($mobile, container) + map-get($mobile, gutter);
+	}
+
+	@if $typology == all {
+		max-width: map-get($desktop, container) + map-get($desktop, gutter);
+
+		@media (max-width: map-get($mobile, media)) {
+			max-width: 100%;
+		}
+		@media (max-width: map-get($desktop, media)) {
+			max-width: map-get($tablet, container) + map-get($tablet, gutter);
+		}
+		@media (min-width: map-get($large, media)) {
+			max-width: map-get($large, container) + map-get($large, gutter);
+		}
+	}
+
+	@if $typology == none {
+		max-width: none;
+
+		@media (max-width: map-get($mobile, media)) {
+			max-width: none;
+		}
+		@media (max-width: map-get($desktop, media)) {
+			max-width: none;
+		}
+		@media (min-width: map-get($large, media)) {
+			max-width: none;
+		}
+	}
+}
+
+// Columns
+@mixin lariano-col($typology, $columns:1, $gutter: default, $direction: default){
+	@if $typology == map-get($large, name) {
+		@media (min-width: map-get($large, media)) {
+			@if $columns > map-get($large, columns) {
+				width: $largeWidth * map-get($large, columns);
+			} @else {
+				width: $largeWidth * $columns;
+			}
+
+			@if $gutter == no-gutter {
+				@include no-gutter;
+			} @else if $gutter == gutter {
+				@include gutter($typology);
+			}
+
+			@if $direction == right {
+				float: right;
+			} @else if $direction == left {
+				float: left;
+			}
+		}
+	}
+
+	@if $typology == map-get($desktop, name) {
+		@if $columns > map-get($desktop, columns) {
+			width: $desktopWidth * map-get($desktop, columns);
+		} @else {
+			width: $desktopWidth * $columns;
+		}
+	}
+
+	@if $typology == map-get($tablet, name) {
+		@media (max-width: map-get($desktop, media)) {
+			width: $tabletWidth * $columns;
+
+			@if $gutter == no-gutter {
+				@include no-gutter;
+			} @else if $gutter == gutter {
+				@include gutter($typology);
+			}
+
+			@if $direction == right {
+				float: right;
+			} @else if $direction == left {
+				float: left;
+			}
+		}
+	}
+
+	@if $typology == map-get($mobile, name) {
+		@media (max-width: map-get($mobile, media)) {
+			@if $columns > map-get($mobile, columns) {
+				width: $mobileWidth * map-get($mobile, columns);
+			} @else {
+				width: $mobileWidth * $columns;
+			}
+
+			@if $gutter == no-gutter {
+				@include no-gutter;
+			} @else if $gutter == gutter {
+				@include gutter($typology);
+			} @else {
+				@include no-gutter;
+			}
+
+			@if $direction == right {
+				float: right;
+			} @else if $direction == left {
+				float: left;
+			}
+		}
+	}
+	@if $typology == map-get($mobile, alt) {
+		@if $columns > map-get($mobile, columns) {
+			width: $mobileWidth * map-get($mobile, columns);
+		} @else {
+			width: $mobileWidth * $columns;
+		}
+
+		@if $gutter == no-gutter {
+			@include no-gutter;
+		} @else if $gutter == gutter {
+			@include gutter($typology);
+		} @else {
+			@include no-gutter;
+		}
+
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		} @else if $direction == default {
+			float: left;
+		}
+	}
+
+	@if $typology == full {
+		width: 100%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == three-quarters {
+		width: 75%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == two-third {
+		width: 66.666667%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == half {
+		width: 50%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == third {
+		width: 33.333334%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == fourth {
+		width: 25%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == fifth {
+		width: 20%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == sixth {
+		width: 16.666667%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == seventh {
+		width: 14.285714%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == eighth {
+		width: 12.5%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == ninth {
+		width: 11.111112%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+	@if $typology == tenth {
+		width: 10%;
+		@if $columns == no-gutter {
+			@include no-gutter;
+		} @else if $columns == gutter {
+			@include gutter($typology);
+		}
+		@if $direction == right {
+			float: right;
+		} @else if $direction == left {
+			float: left;
+		}
+	}
+
+	@if $typology != map-get($mobile, name) 
+		and $typology != map-get($mobile, alt) 
+		and $typology != map-get($tablet, name) 
+		and $typology != map-get($large, name) {
+
+			@if $direction == right {
+				float: right;
+			} @else if $direction == left {
+				float: left;
+			} @else if $direction == default {
+				float: left;
+			}
+
+			@if $gutter == no-gutter {
+				@include no-gutter;
+			} @else if $gutter == gutter {
+				@include gutter($typology);
+			} @else {
+				@include gutter($typology);
+			}
+		}
+}
+
+// Reset columns
+@mixin lariano-col-reset($typology:all){
+	@if $typology == map-get($large, name) {
+		@media (min-width: map-get($large, media)) {
+			width: auto;
+			padding: inherit;
+			float: none;
+		}
+	}
+
+	@if $typology == map-get($desktop, name) {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+
+	@if $typology == map-get($tablet, name) {
+		@media (max-width: map-get($desktop, media)) {
+			width: auto;
+			padding: inherit;
+			float: none;
+		}
+	}
+
+	@if $typology == map-get($mobile, name) {
+		@media (max-width: map-get($mobile, media)) {
+			width: auto;
+			padding: inherit;
+			float: none;
+		}
+	}
+	@if $typology == map-get($mobile, alt) {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+
+	@if $typology == all {
+		width: auto;
+		padding: inherit;
+		float: none;
+
+		@media (max-width: map-get($large, media)) {
+			width: auto;
+			padding: inherit;
+			float: none;
+		}
+	}
+
+	@if $typology == full {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == three-quarters {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == two-third {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == half {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == third {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == fourth {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == fifth {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == sixth {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == seventh {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == eighth {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == ninth {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+	@if $typology == tenth {
+		width: auto;
+		padding: inherit;
+		float: none;
+	}
+}
+
+// Move
+@mixin lariano-move($service, $typology, $columns:1, $direction: left){
+	@if $typology == map-get($large, name) {
+		@if $service == offset {
+			@media (min-width: map-get($large, media)) {
+				@if $columns > map-get($large, columns) {
+					@if $direction == right {
+						margin-right: $largeWidth * map-get($large, columns);
+					} @else {
+						margin-left: $largeWidth * map-get($large, columns);
+					}
+				} @else {
+					@if $direction == right {
+						margin-right: $largeWidth * $columns;
+					} @else {
+						margin-left: $largeWidth * $columns;
+					}
+				}
+			}
+		}
+		@if $service == inset {
+			@media (min-width: map-get($large, media)) {
+				@if $columns > map-get($large, columns) {
+					@if $direction == right {
+						padding-right: $largeWidth * map-get($large, columns);
+					} @else {
+						padding-left: $largeWidth * map-get($large, columns);
+					}
+				} @else {
+					@if $direction == right {
+						padding-right: $largeWidth * $columns;
+					} @else {
+						padding-left: $largeWidth * $columns;
+					}
+				}
+			}
+		}
+		@if $service == push {
+			@media (min-width: map-get($large, media)) {
+				@if $columns > map-get($large, columns) {
+					left: $largeWidth * map-get($large, columns);
+				} @else {
+					left: $largeWidth * $columns;
+				}
+			}
+		}
+		@if $service == pull {
+			@media (min-width: map-get($large, media)) {
+				@if $columns > map-get($large, columns) {
+					right: $largeWidth * map-get($large, columns);
+				} @else {
+					right: $largeWidth * $columns;
+				}
+			}
+		}
+	}
+
+	@if $typology == map-get($desktop, name) {
+		@if $service == offset {
+			@if $columns > map-get($desktop, columns) {
+				@if $direction == right {
+					margin-right: $desktopWidth * map-get($desktop, columns);
+				} @else {
+					margin-left: $desktopWidth * map-get($desktop, columns);
+				}
+			} @else {
+				@if $direction == right {
+					margin-right: $desktopWidth * $columns;
+				} @else {
+					margin-left: $desktopWidth * $columns;
+				}
+			}
+		}
+		@if $service == inset {
+			@if $columns > map-get($desktop, columns) {
+				@if $direction == right {
+					padding-right: $desktopWidth * map-get($desktop, columns);
+				} @else {
+					padding-left: $desktopWidth * map-get($desktop, columns);
+				}
+			} @else {
+				@if $direction == right {
+					padding-right: $desktopWidth * $columns;
+				} @else {
+					padding-left: $desktopWidth * $columns;
+				}
+			}
+		}
+		@if $service == push {
+			@if $columns > map-get($desktop, columns) {
+				left: $desktopWidth * map-get($desktop, columns);
+			} @else {
+				left: $desktopWidth * $columns;
+			}
+		}
+		@if $service == pull {
+			@if $columns > map-get($desktop, columns) {
+				right: $desktopWidth * map-get($desktop, columns);
+			} @else {
+				right: $desktopWidth * $columns;
+			}
+		}
+	}
+
+	@if $typology == map-get($tablet, name) {
+		@if $service == offset {
+			@media (max-width: map-get($desktop, media)) {
+				@if $columns > map-get($tablet, columns) {
+					@if $direction == right {
+						margin-right: $tabletWidth * map-get($tablet, columns);
+					} @else {
+						margin-left: $tabletWidth * map-get($tablet, columns);
+					}
+				} @else {
+					@if $direction == right {
+						margin-right: $tabletWidth * $columns;
+					} @else {
+						margin-left: $tabletWidth * $columns;
+					}
+				}
+			}
+		}
+		@if $service == inset {
+			@media (max-width: map-get($desktop, media)) {
+				@if $columns > map-get($tablet, columns) {
+					@if $direction == right {
+						padding-right: $tabletWidth * map-get($tablet, columns);
+					} @else {
+						padding-left: $tabletWidth * map-get($tablet, columns);
+					}
+				} @else {
+					@if $direction == right {
+						padding-right: $tabletWidth * $columns;
+					} @else {
+						padding-left: $tabletWidth * $columns;
+					}
+				}
+			}
+		}
+		@if $service == push {
+			@media (max-width: map-get($desktop, media)) {
+				@if $columns > map-get($tablet, columns) {
+					left: $tabletWidth * map-get($tablet, columns);
+				} @else {
+					left: $tabletWidth * $columns;
+				}
+			}
+		}
+		@if $service == pull {
+			@media (max-width: map-get($desktop, media)) {
+				@if $columns > map-get($tablet, columns) {
+					right: $tabletWidth * map-get($tablet, columns);
+				} @else {
+					right: $tabletWidth * $columns;
+				}
+			}
+		}
+	}
+
+	@if $typology == map-get($mobile, name) {
+		@if $service == offset {
+			@media (max-width: map-get($mobile, media)) {
+				@if $columns > map-get($mobile, columns) {
+					@if $direction == right {
+						margin-right: $mobileWidth * map-get($mobile, columns);
+					} @else {
+						margin-left: $mobileWidth * map-get($mobile, columns);
+					}
+				} @else {
+					@if $direction == right {
+						margin-right: $mobileWidth * $columns;
+					} @else {
+						margin-left: $mobileWidth * $columns;
+					}
+				}
+			}
+		}
+		@if $service == inset {
+			@media (max-width: map-get($mobile, media)) {
+				@if $columns > map-get($mobile, columns) {
+					@if $direction == right {
+						padding-right: $mobileWidth * map-get($mobile, columns);
+					} @else {
+						padding-left: $mobileWidth * map-get($mobile, columns);
+					}
+				} @else {
+					@if $direction == right {
+						padding-right: $mobileWidth * $columns;
+					} @else {
+						padding-left: $mobileWidth * $columns;
+					}
+				}
+			}
+		}
+		@if $service == push {
+			@media (max-width: map-get($mobile, media)) {
+				@if $columns > map-get($mobile, columns) {
+					left: $mobileWidth * map-get($mobile, columns);
+				} @else {
+					left: $mobileWidth * $columns;
+				}
+			}
+		}
+		@if $service == pull {
+			@media (max-width: map-get($mobile, media)) {
+				@if $columns > map-get($mobile, columns) {
+					right: $mobileWidth * map-get($mobile, columns);
+				} @else {
+					right: $mobileWidth * $columns;
+				}
+			}
+		}
+	}
+
+	@if $typology == map-get($mobile, alt) {
+		@if $service == offset {
+			@if $columns > map-get($mobile, columns) {
+				@if $direction == right {
+					margin-right: $mobileWidth * map-get($mobile, columns);
+				} @else {
+					margin-left: $mobileWidth * map-get($mobile, columns);
+				}
+			} @else {
+				@if $direction == right {
+					margin-right: $mobileWidth * $columns;
+				} @else {
+					margin-left: $mobileWidth * $columns;
+				}
+			}
+		}
+		@if $service == inset {
+			@if $columns > map-get($mobile, columns) {
+				@if $direction == right {
+					padding-right: $mobileWidth * map-get($mobile, columns);
+				} @else {
+					padding-left: $mobileWidth * map-get($mobile, columns);
+				}
+			} @else {
+				@if $direction == right {
+					padding-right: $mobileWidth * $columns;
+				} @else {
+					padding-left: $mobileWidth * $columns;
+				}
+			}
+		}
+		@if $service == push {
+			@if $columns > map-get($mobile, columns) {
+				left: $mobileWidth * map-get($mobile, columns);
+			} @else {
+				left: $mobileWidth * $columns;
+			}
+		}
+		@if $service == pull {
+			@if $columns > map-get($mobile, columns) {
+				right: $mobileWidth * map-get($mobile, columns);
+			} @else {
+				right: $mobileWidth * $columns;
+			}
+		}
+	}
+	
+	@if $typology == all {
+		@if $service == offset {
+			@if $columns > map-get($desktop, columns) {
+				@if $direction == right {
+					margin-right: $desktopWidth * map-get($desktop, columns);
+				} @else {
+					margin-left: $desktopWidth * map-get($desktop, columns);
+				}
+			} @else {
+				@if $direction == right {
+					margin-right: $desktopWidth * $columns;
+				} @else {
+					margin-left: $desktopWidth * $columns;
+				}
+			}
+		}
+		@if $service == inset {
+			@if $columns > map-get($desktop, columns) {
+				@if $direction == right {
+					padding-right: $desktopWidth * map-get($desktop, columns);
+				} @else {
+					padding-left: $desktopWidth * map-get($desktop, columns);
+				}
+			} @else {
+				@if $direction == right {
+					padding-right: $desktopWidth * $columns;
+				} @else {
+					padding-left: $desktopWidth * $columns;
+				}
+			}
+		}
+		@if $service == push {
+			@if $columns > map-get($desktop, columns) {
+				left: $desktopWidth * map-get($desktop, columns);
+			} @else {
+				left: $desktopWidth * $columns;
+			}
+		}
+		@if $service == pull {
+			@if $columns > map-get($desktop, columns) {
+				right: $desktopWidth * map-get($desktop, columns);
+			} @else {
+				right: $desktopWidth * $columns;
+			}
+		}
+
+		@media (max-width: map-get($mobile, media)) {
+			@if $service == offset {
+				@if $columns > map-get($mobile, columns) {
+					@if $direction == right {
+						margin-right: $mobileWidth * map-get($mobile, columns);
+					} @else {
+						margin-left: $mobileWidth * map-get($mobile, columns);
+					}
+				} @else {
+					@if $direction == right {
+						margin-right: $mobileWidth * $columns;
+					} @else {
+						margin-left: $mobileWidth * $columns;
+					}
+				}
+			}
+			@if $service == inset {
+				@if $columns > map-get($mobile, columns) {
+					@if $direction == right {
+						padding-right: $mobileWidth * map-get($mobile, columns);
+					} @else {
+						padding-left: $mobileWidth * map-get($mobile, columns);
+					}
+				} @else {
+					@if $direction == right {
+						padding-right: $mobileWidth * $columns;
+					} @else {
+						padding-left: $mobileWidth * $columns;
+					}
+				}
+			}
+			@if $service == push {
+				@if $columns > map-get($mobile, columns) {
+					left: $mobileWidth * map-get($mobile, columns);
+				} @else {
+					left: $mobileWidth * $columns;
+				}
+			}
+			@if $service == pull {
+				@if $columns > map-get($mobile, columns) {
+					right: $mobileWidth * map-get($mobile, columns);
+				} @else {
+					right: $mobileWidth * $columns;
+				}
+			}
+		}
+		@media (max-width: map-get($desktop, media)) {
+			@if $service == offset {
+				@if $columns > map-get($tablet, columns) {
+					@if $direction == right {
+						margin-right: $tabletWidth * map-get($tablet, columns);
+					} @else {
+						margin-left: $tabletWidth * map-get($tablet, columns);
+					}
+				} @else {
+					@if $direction == right {
+						margin-right: $tabletWidth * $columns;
+					} @else {
+						margin-left: $tabletWidth * $columns;
+					}
+				}
+			}
+			@if $service == inset {
+				@if $columns > map-get($tablet, columns) {
+					@if $direction == right {
+						padding-right: $tabletWidth * map-get($tablet, columns);
+					} @else {
+						padding-left: $tabletWidth * map-get($tablet, columns);
+					}
+				} @else {
+					@if $direction == right {
+						padding-right: $tabletWidth * $columns;
+					} @else {
+						padding-left: $tabletWidth * $columns;
+					}
+				}
+			}
+			@if $service == push {
+				@if $columns > map-get($tablet, columns) {
+					left: $tabletWidth * map-get($tablet, columns);
+				} @else {
+					left: $tabletWidth * $columns;
+				}
+			}
+			@if $service == pull {
+				@if $columns > map-get($tablet, columns) {
+					right: $tabletWidth * map-get($tablet, columns);
+				} @else {
+					right: $tabletWidth * $columns;
+				}
+			}
+		}
+		@media (min-width: map-get($large, media)) {
+			@if $service == offset {
+				@if $columns > map-get($large, columns) {
+					@if $direction == right {
+						margin-right: $largeWidth * map-get($large, columns);
+					} @else {
+						margin-left: $largeWidth * map-get($large, columns);
+					}
+				} @else {
+					@if $direction == right {
+						margin-right: $largeWidth * $columns;
+					} @else {
+						margin-left: $largeWidth * $columns;
+					}
+				}
+			}
+			@if $service == inset {
+				@if $columns > map-get($large, columns) {
+					@if $direction == right {
+						padding-right: $largeWidth * map-get($large, columns);
+					} @else {
+						padding-left: $largeWidth * map-get($large, columns);
+					}
+				} @else {
+					@if $direction == right {
+						padding-right: $largeWidth * $columns;
+					} @else {
+						padding-left: $largeWidth * $columns;
+					}
+				}
+			}
+			@if $service == push {
+				@if $columns > map-get($large, columns) {
+					left: $largeWidth * map-get($large, columns);
+				} @else {
+					left: $largeWidth * $columns;
+				}
+			}
+			@if $service == pull {
+				@if $columns > map-get($large, columns) {
+					right: $largeWidth * map-get($large, columns);
+				} @else {
+					right: $largeWidth * $columns;
+				}
+			}
+		}
+	}
+
+	@if $typology == full {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 100%;
+			} @else {
+				margin-left: 100%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 100%;
+			} @else {
+				padding-left: 100%;
+			}
+		}
+		@if $service == push {
+			left: 100%;
+		}
+		@if $service == pull {
+			right: 100%;
+		}
+	}
+	@if $typology == three-quarters {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 75%;
+			} @else {
+				margin-left: 75%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 75%;
+			} @else {
+				padding-left: 75%;
+			}
+		}
+		@if $service == push {
+			left: 75%;
+		}
+		@if $service == pull {
+			right: 75%;
+		}
+	}
+	@if $typology == two-third {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 66.666667%;
+			} @else {
+				margin-left: 66.666667%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 66.666667%;
+			} @else {
+				padding-left: 66.666667%;
+			}
+		}
+		@if $service == push {
+			left: 66.666667%;
+		}
+		@if $service == pull {
+			right: 66.666667%;
+		}
+	}
+	@if $typology == half {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 50%;
+			} @else {
+				margin-left: 50%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 50%;
+			} @else {
+				padding-left: 50%;
+			}
+		}
+		@if $service == push {
+			left: 50%;
+		}
+		@if $service == pull {
+			right: 50%;
+		}
+	}
+	@if $typology == third {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 33.333334%;
+			} @else {
+				margin-left: 33.333334%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 33.333334%;
+			} @else {
+				padding-left: 33.333334%;
+			}
+		}
+		@if $service == push {
+			left: 33.333334%;
+		}
+		@if $service == pull {
+			right: 33.333334%;
+		}
+	}
+	@if $typology == fourth {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 25%;
+			} @else {
+				margin-left: 25%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 25%;
+			} @else {
+				padding-left: 25%;
+			}
+		}
+		@if $service == push {
+			left: 25%;
+		}
+		@if $service == pull {
+			right: 25%;
+		}
+	}
+	@if $typology == fifth {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 20%;
+			} @else {
+				margin-left: 20%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 20%;
+			} @else {
+				padding-left: 20%;
+			}
+		}
+		@if $service == push {
+			left: 20%;
+		}
+		@if $service == pull {
+			right: 20%;
+		}
+	}
+	@if $typology == sixth {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 16.666667%;
+			} @else {
+				margin-left: 16.666667%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 16.666667%;
+			} @else {
+				padding-left: 16.666667%;
+			}
+		}
+		@if $service == push {
+			left: 16.666667%;
+		}
+		@if $service == pull {
+			right: 16.666667%;
+		}
+	}
+	@if $typology == seventh {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 14.285714%;
+			} @else {
+				margin-left: 14.285714%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 14.285714%;
+			} @else {
+				padding-left: 14.285714%;
+			}
+		}
+		@if $service == push {
+			left: 14.285714%;
+		}
+		@if $service == pull {
+			right: 14.285714%;
+		}
+	}
+	@if $typology == eighth {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 12.5%;
+			} @else {
+				margin-left: 12.5%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 12.5%;
+			} @else {
+				padding-left: 12.5%;
+			}
+		}
+		@if $service == push {
+			left: 12.5%;
+		}
+		@if $service == pull {
+			right: 12.5%;
+		}
+	}
+	@if $typology == ninth {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 11.111112%;
+			} @else {
+				margin-left: 11.111112%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 11.111112%;
+			} @else {
+				padding-left: 11.111112%;
+			}
+		}
+		@if $service == push {
+			left: 11.111112%;
+		}
+		@if $service == pull {
+			right: 11.111112%;
+		}
+	}
+	@if $typology == tenth {
+		@if $service == offset {
+			@if $direction == right {
+				margin-right: 10%;
+			} @else {
+				margin-left: 10%;
+			}
+		}
+		@if $service == inset {
+			@if $direction == right {
+				padding-right: 10%;
+			} @else {
+				padding-left: 10%;
+			}
+		}
+		@if $service == push {
+			left: 10%;
+		}
+		@if $service == pull {
+			right: 10%;
+		}
+	}
+
+	@if $service == pull or $service == push {
+		position: relative;
+	}
+}
