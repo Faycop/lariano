@@ -1,4 +1,4 @@
-# Lariano - Spaghetti, Pizza and Responsive Grids
+# Lariano 0.7.4 - Spaghetti, Pizza and Responsive Grids
 
 Lariano is a REALLY (only **84 byte** for core functionality when compiled) lightweight SASS based framework - **with NO Dependencies :)** -  that allows you to define 4 typology of devices on which you will have:
 
