@@ -18,6 +18,19 @@ Lariano is distribuited under [MIT License](http://en.wikipedia.org/wiki/MIT_Lic
 ## Compatibility
 Compatibility is up to every browser that supports `css3 box-sizing` such as Internet Explorer 8 and so on.
 
+## Changelog
+> ...
+> v0.7.3
+> - Added "all" typology to mixin lariano-move
+
+> v0.7.4
+> - Changed the value of the @include lariano-container for resetting it. Now is @include lariano-container(reset)
+> - Fixed a bug on wich defining standard-measure column like @include lariano-col(half) didn't put the gutter
+> - Now Lariano provides an extra variable called "$genericGutter" wich defines the gutter for the standard-measure columns in absence of a defined typology
+> - Added the possibility to do something like @include lariano-col(desktop,half) on wich provides the gutter of the defined typology instead of the $genericGutter value
+> - Merged the mixin @lariano-col-reset in @lariano-col. now the syntax is: @include lariano-col(desktop, reset) or even @lariano-col(all, reset) or @lariano-col(reset) to undo the columns on every typology
+
+## Configuration
 The configuration will be something like that:
 
 ```sass
@@ -51,6 +64,10 @@ $mobile: (
 	columns: 4,
 	gutter: 10px
 );
+
+// This is for the standard-measure columns like full, half, third etc.
+// You can allways use something like @include lariano-col(tablet,third); to use the gutter of the targeted typology
+$genericGutter: 32px;
 ```
 
 ##Mixin
@@ -66,10 +83,16 @@ Lariano is based on a series of mixins which you can use as you want to build yo
 
 ### lariano-container($typology)
 Use it to define an element who will contain something (default `all`).
-Admitted values: `all`, `none`, `large`, `desktop`, `tablet`, `mobile` 
+Admitted values:
+- `all`
+- `reset`
+- `large`
+- `desktop`
+- `tablet`
+- `mobile` 
 
 `all` will make the container responsive for all 4 typologies
-`none` will reset the container
+`reset` will reset the container
 ```sass
 @include lariano-container(desktop);
 ```
@@ -88,11 +111,44 @@ Admitted values: `large`, `tablet`, `mobile`
 ### lariano-col($typology, $columns:1, $gutter: default, $direction: default)
 The key of the grid, you can use it in various way.
 
-Admitted values for `$typology`: `large`, `desktop`, `tablet`, `mobile`, `mb-first`, `full`, `three-quarters`, `two-third`, `half`, `third`, `fourth`, `fifth`, `sixth`, `seventh`, `eighth`, `ninth`, `tenth`
-Admitted values for `$columns`: (from `0` to `X` - based on how many columns you define)
-Admitted values for `$gutter`: `default`, `no-gutter`
+Admitted values for `$typology`:
+- `large`
+- `desktop`
+- `tablet`
+- `mobile`
+- `mb-first`
+- `full`
+- `three-quarters`
+- `two-third`
+- `half`
+- `third`
+- `fourth`
+- `fifth`
+- `sixth`
+- `seventh`
+- `eighth`
+- `ninth`
+- `tenth`
+- `reset`
+Admitted values for `$columns`:
+- from `0` to `X` - based on how many columns you define
+- `full`
+- `three-quarters`
+- `two-third`
+- `half`
+- `third`
+- `fourth`
+- `fifth`
+- `sixth`
+- `seventh`
+- `eighth`
+- `ninth`
+- `tenth`
+Admitted values for `$gutter`:
+- `gutter`
+- `no-gutter`
 
-**NOTE**:  `mb-first` will use the same configuration of the `mobile` typology without the media-query
+> `mb-first` will use the same configuration of the `mobile` typology without the media-query
 ```sass
 .sidebar {
 	@include lariano-col(large, 12);
@@ -101,28 +157,53 @@ Admitted values for `$gutter`: `default`, `no-gutter`
 	@include lariano-col(mobile, 2, no-gutter);
 }
 ```
----
-### lariano-col-reset($typology)
-Reset the columns you defined earlier (default `all` - which means you will reset all the columns for all typologies).
-
-Admitted values for `$typology`: `large`, `desktop`, `tablet`, `mobile`, `mb-first`, `full`, `three-quarters`, `two-third`, `half`, `third`, `fourth`, `fifth`, `sixth`, `seventh`, `eighth`, `ninth`, `tenth` 
-
+> Using a standard measure such as `half`, `third`, etc will use the `$genericGutter` variable to define the gutter
 ```sass
 .sidebar {
-	@include lariano-col-reset(large);
-	@include lariano-col-reset(tablet);
+	@include lariano-col(fifth);
 }
 ```
+> But you can also use the typology parameter to use the gutter of that target
+```sass
+.sidebar {
+	@include lariano-col(desktop, half);
+}
+```
+
 ---
 ### lariano-move($service, $typology, $columns:1, $direction: left)
-Moves an element using 4 `$service`: `offset`, `inset`, `push`, `pull`
+Moves an element using 4 `$service`:
+- `offset`
+- `inset`
+- `push`
+- `pull`
 
 #### lariano-move(offset, ...)
 Offset an element from its position to `X` columns using CSS `margin`
 
-Admitted values for `$typology`: `large`, `desktop`, `tablet`, `mobile`, `mb-first`, `full`, `three-quarters`, `two-third`, `half`, `third`, `fourth`, `fifth`, `sixth`, `seventh`, `eighth`, `ninth`, `tenth` 
-Admitted values for `$columns`: from `0` to `X` (based on how many columns you define)
-Admitted values for `$direction`: `left`, `right`
+Admitted values for `$typology`:
+- `large`
+- `desktop`
+- `tablet`
+- `mobile`
+- `mb-first`
+- `full`
+- `three-quarters`
+- `two-third`
+- `half`
+- `third`
+- `fourth`
+- `fifth`
+- `sixth`
+- `seventh`
+- `eighth`
+- `ninth`
+- `tenth` 
+Admitted values for `$columns`:
+- from `0` to `X` (based on how many columns you define)
+Admitted values for `$direction`:
+- `left`
+- `right`
 
 ```sass
 .sidebar {
@@ -139,9 +220,29 @@ footer {
 #### lariano-move(inset, ...)
 Inset an element from its position to `X` columns using CSS `padding`
 
-Admitted values for `$typology`: `large`, `desktop`, `tablet`, `mobile`, `mb-first`, `full`, `three-quarters`, `two-third`, `half`, `third`, `fourth`, `fifth`, `sixth`, `seventh`, `eighth`, `ninth`, `tenth` 
-Admitted values for `$columns`: from `0` to `X` (based on how many columns you define)
-Admitted values for `$direction`: `left`, `right`
+Admitted values for `$typology`:
+- `large`
+- `desktop`
+- `tablet`
+- `mobile`
+- `mb-first`
+- `full`
+- `three-quarters`
+- `two-third`
+- `half`
+- `third`
+- `fourth`
+- `fifth`
+- `sixth`
+- `seventh`
+- `eighth`
+- `ninth`
+- `tenth` 
+Admitted values for `$columns`:
+- from `0` to `X` (based on how many columns you define)
+Admitted values for `$direction`:
+- `left`
+- `right`
 
 ```sass
 .sidebar {
@@ -153,8 +254,26 @@ Admitted values for `$direction`: `left`, `right`
 #### lariano-move(push, ...)
 Push an element from its position to `X` columns using CSS `position: relative` and `left`
 
-Admitted values for `$typology`: `large`, `desktop`, `tablet`, `mobile`, `mb-first`, `full`, `three-quarters`, `two-third`, `half`, `third`, `fourth`, `fifth`, `sixth`, `seventh`, `eighth`, `ninth`, `tenth` 
-Admitted values for `$columns`: from `0` to `X` (based on how many columns you define)
+Admitted values for `$typology`:
+- `large`
+- `desktop`
+- `tablet`
+- `mobile`
+- `mb-first`
+- `full`
+- `three-quarters`
+- `two-third`
+- `half`
+- `third`
+- `fourth`
+- `fifth`
+- `sixth`
+- `seventh`
+- `eighth`
+- `ninth`
+- `tenth` 
+Admitted values for `$columns`:
+- from `0` to `X` (based on how many columns you define)
 
 ```sass
 .sidebar {
@@ -166,8 +285,26 @@ Admitted values for `$columns`: from `0` to `X` (based on how many columns you d
 #### lariano-move(pull, ...)
 Pull an element from its position to `X` columns using CSS `position: relative` and `left`
 
-Admitted values for `$typology`: `large`, `desktop`, `tablet`, `mobile`, `mb-first`, `full`, `three-quarters`, `two-third`, `half`, `third`, `fourth`, `fifth`, `sixth`, `seventh`, `eighth`, `ninth`, `tenth` 
-Admitted values for `$columns`: from `0` to `X` (based on how many columns you define)
+Admitted values for `$typology`:
+- `large`
+- `desktop`
+- `tablet`
+- `mobile`
+- `mb-first`
+- `full`
+- `three-quarters`
+- `two-third`
+- `half`
+- `third`
+- `fourth`
+- `fifth`
+- `sixth`
+- `seventh`
+- `eighth`
+- `ninth`
+- `tenth` 
+Admitted values for `$columns`:
+- from `0` to `X` (based on how many columns you define)
 
 ```sass
 .sidebar {
