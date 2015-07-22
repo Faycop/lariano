@@ -130,6 +130,7 @@ Admitted values for `$typology`:
 - `ninth`
 - `tenth`
 - `reset`
+
 Admitted values for `$columns`:
 - from `0` to `X` - based on how many columns you define
 - `full`
@@ -144,6 +145,7 @@ Admitted values for `$columns`:
 - `eighth`
 - `ninth`
 - `tenth`
+
 Admitted values for `$gutter`:
 - `gutter`
 - `no-gutter`
@@ -199,8 +201,10 @@ Admitted values for `$typology`:
 - `eighth`
 - `ninth`
 - `tenth` 
+
 Admitted values for `$columns`:
 - from `0` to `X` (based on how many columns you define)
+
 Admitted values for `$direction`:
 - `left`
 - `right`
@@ -238,8 +242,10 @@ Admitted values for `$typology`:
 - `eighth`
 - `ninth`
 - `tenth` 
+
 Admitted values for `$columns`:
 - from `0` to `X` (based on how many columns you define)
+
 Admitted values for `$direction`:
 - `left`
 - `right`
@@ -272,6 +278,7 @@ Admitted values for `$typology`:
 - `eighth`
 - `ninth`
 - `tenth` 
+
 Admitted values for `$columns`:
 - from `0` to `X` (based on how many columns you define)
 
@@ -303,6 +310,7 @@ Admitted values for `$typology`:
 - `eighth`
 - `ninth`
 - `tenth` 
+
 Admitted values for `$columns`:
 - from `0` to `X` (based on how many columns you define)
 
