@@ -77,7 +77,6 @@ Lariano is based on a series of mixins which you can use as you want to build yo
 @include lariano-container($typology:all)
 @include lariano-media-query($typology)
 @include lariano-col($typology, $columns:1, $gutter: default, $direction: default)
-@include lariano-col-reset($typology:all)
 @include lariano-move($service, $typology, $columns:1, $direction: left)
 ```
 
@@ -150,6 +149,10 @@ Admitted values for `$gutter`:
 - `gutter`
 - `no-gutter`
 
+Admitted values for `$direction`:
+- `left`
+- `right`
+
 > `mb-first` will use the same configuration of the `mobile` typology without the media-query
 ```sass
 .sidebar {
@@ -169,6 +172,12 @@ Admitted values for `$gutter`:
 ```sass
 .sidebar {
 	@include lariano-col(desktop, half);
+}
+```
+> Using `left` or `right` for `$direction` will change the CSS `float` property
+```sass
+.sidebar {
+	@include lariano-col(desktop, 3, default, right);
 }
 ```
 
